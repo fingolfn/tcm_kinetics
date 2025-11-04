@@ -74,10 +74,10 @@ arrows(heparin_low[,3], heparin_low[,4]-heparin_low[,5],
 ########################################################################################################################################################################
 #Figure 3E:  protac binding affinity distributions
 ########################################################################################################################################################################
-protac_db<-read.csv("databases/protac.csv",as.is=T,header=1)
+protac_db<-read.csv("databases/protac_2025.csv",as.is=T,header=1)
 
 
-hist(log10(as.numeric(protac_db$Kd..nM..Protac.to.Target.)),breaks=20,col=rgb(0,0,0,0.3),xlim=c(-0.3,4.3),ylim=c(0,20),
+hist(log10(as.numeric(protac_db$Kd..nM..Protac.to.Target.)),breaks=30,col=rgb(0,0,0,0.3),xlim=c(-0.3,4.3),ylim=c(0,20),
      xlab="Kd (nM)",border=rgb(0,0,0,0.3))
 
 
@@ -85,7 +85,24 @@ hist(log10(as.numeric(protac_db$Kd..nM..Protac.to.E3.)),breaks=20,col=rgb(1,0,0,
 
 legend("topright",legend=c("Target Kd","E3 Kd"),fill=c(rgb(0,0,0,0.3),rgb(1,0,0,0.5)),text.col=c("grey","darkred"))
 
+library(ggplot2)
+library(tidyr)
 
+df<-data.frame(
+  Target=log10(as.numeric(protac_db$Kd..nM..Protac.to.Target.)),
+  E3ligase=log10(as.numeric(protac_db$Kd..nM..Protac.to.E3.))
+)
+
+# Convert to long format for ggplot
+df_long <- df %>%
+  pivot_longer(cols = c(Target, E3ligase), names_to = "Variable", values_to = "Value")
+
+# Plot overlaid histograms
+ggplot(df_long, aes(x = Value, fill = Variable)) +
+  scale_fill_manual(values=c("E3ligase"="red","Target"="grey"))+
+  geom_histogram(alpha = 0.5, position = "identity", bins = 30) +
+  theme_minimal() +
+  labs(title = "Overlaid Histograms", x = "Value", y = "Count")
 
 ########################################################################################################################################################################
 #Figure 3F:  protac-mediated degredation time-courses
